@@ -1,21 +1,11 @@
 import { useState } from "react";
-import { useListArticles, getListArticlesQueryKey } from "@workspace/api-client-react";
+import { useListArticles, getListArticlesQueryKey, useListCategories, getListCategoriesQueryKey } from "@workspace/api-client-react";
 import { ArticleCard } from "@/components/ui/article-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, SlidersHorizontal, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-
-const CATEGORIES = [
-  "All",
-  "Animals",
-  "Plants",
-  "Oceans",
-  "Conservation",
-  "Field Notes",
-  "Human & Nature"
-];
 
 export default function Articles() {
   const [search, setSearch] = useState("");
@@ -27,6 +17,14 @@ export default function Articles() {
     e.preventDefault();
     setDebouncedSearch(search);
   };
+
+  const { data: categoriesData } = useListCategories({
+    query: {
+      queryKey: getListCategoriesQueryKey(),
+    }
+  });
+
+  const categories = categoriesData ? ["All", ...categoriesData.map(c => c.name)] : ["All"];
 
   const { data, isLoading } = useListArticles(
     { 
@@ -58,19 +56,24 @@ export default function Articles() {
         {/* Filters and Search */}
         <div className="flex flex-col lg:flex-row gap-6 mb-12 items-start lg:items-center justify-between bg-card p-6 border border-border">
           <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => {
+              const catData = categoriesData?.find(c => c.name === cat);
+              return (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
-                className={`px-4 py-2 text-sm font-medium transition-colors border ${
+                className={`px-4 py-2 text-sm font-medium transition-colors border flex items-center gap-2 ${
                   category === cat 
                     ? "bg-primary text-primary-foreground border-primary" 
                     : "bg-transparent text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
                 }`}
               >
+                {catData?.color && (
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: catData.color }} />
+                )}
                 {cat}
               </button>
-            ))}
+            )})}
           </div>
           
           <form onSubmit={handleSearch} className="relative w-full lg:w-[300px] flex">

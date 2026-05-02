@@ -1,12 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import type { Article } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Article, Tag } from "@workspace/api-client-react/src/generated/api.schemas";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 
 interface ArticleCardProps {
-  article: Article;
+  article: Article & { tags?: Tag[] };
   featured?: boolean;
 }
 
@@ -41,6 +42,13 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
                 <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-tight group-hover:text-primary transition-colors">
                   {article.title}
                 </h3>
+                {article.tags && article.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {article.tags.map(tag => (
+                      <Badge key={tag.id} variant="secondary" className="text-[10px] uppercase tracking-wider">{tag.name}</Badge>
+                    ))}
+                  </div>
+                )}
                 <p className="text-muted-foreground text-lg leading-relaxed line-clamp-3">
                   {article.excerpt}
                 </p>
@@ -85,6 +93,13 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
             <h3 className="font-serif text-xl md:text-2xl leading-snug group-hover:text-primary transition-colors line-clamp-2">
               {article.title}
             </h3>
+            {article.tags && article.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {article.tags.map(tag => (
+                  <Badge key={tag.id} variant="secondary" className="text-[10px] uppercase tracking-wider">{tag.name}</Badge>
+                ))}
+              </div>
+            )}
             <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 flex-grow">
               {article.excerpt}
             </p>

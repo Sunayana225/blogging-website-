@@ -11,4 +11,5 @@ export interface ArticleStats {
   total: number;
   byCategory: ArticleStatsByCategoryItem[];
   featuredCount: number;
+  totalViews: number;
 }

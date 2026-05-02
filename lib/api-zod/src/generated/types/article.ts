@@ -5,6 +5,7 @@
  * Nature Writing Platform API
  * OpenAPI spec version: 0.1.0
  */
+import type { Tag } from "./tag";
 
 export interface Article {
   id: number;
@@ -13,9 +14,18 @@ export interface Article {
   excerpt: string;
   content: string;
   category: string;
+  categoryId?: number | null;
   imageUrl?: string | null;
+  imageAlt?: string | null;
   readTime: number;
+  wordCount?: number | null;
   featured: boolean;
+  status: string;
+  viewCount: number;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  tags: Tag[];
   publishedAt: Date;
+  updatedAt: Date;
   createdAt: Date;
 }

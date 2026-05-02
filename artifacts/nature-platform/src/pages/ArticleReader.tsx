@@ -1,9 +1,10 @@
 import { useParams, Link } from "wouter";
 import { useGetArticle, getGetArticleQueryKey } from "@workspace/api-client-react";
 import { format } from "date-fns";
-import { ArrowLeft, Clock, Calendar, Tag, Twitter, Linkedin, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Tag, Twitter, Linkedin, Link as LinkIcon, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ArticleReader() {
@@ -97,6 +98,10 @@ export default function ArticleReader() {
             {article.readTime} min read
           </div>
           <div className="flex items-center">
+            <Eye className="h-4 w-4 mr-2 text-primary" />
+            {article.viewCount || 0} views
+          </div>
+          <div className="flex items-center">
             <Tag className="h-4 w-4 mr-2 text-primary" />
             <span className="uppercase tracking-wider text-xs">{article.category}</span>
           </div>
@@ -134,12 +139,30 @@ export default function ArticleReader() {
         </aside>
 
         {/* Main Content */}
-        <div className="prose prose-lg dark:prose-invert prose-headings:font-serif prose-h2:text-3xl prose-h3:text-2xl prose-a:text-primary hover:prose-a:text-accent prose-img:rounded-none max-w-none w-full">
-          {/* We would render markdown here if the API returned markdown, 
-              but since it returns plain text string in our schema, we'll format it simply */}
-          <div className="whitespace-pre-wrap font-sans text-foreground/90 leading-relaxed text-[17px] md:text-[19px]">
-            {article.content}
+        <div className="flex-1 w-full max-w-none">
+          <div className="prose prose-lg dark:prose-invert prose-headings:font-serif prose-h2:text-3xl prose-h3:text-2xl prose-a:text-primary hover:prose-a:text-accent prose-img:rounded-none max-w-none w-full">
+            {/* We would render markdown here if the API returned markdown, 
+                but since it returns plain text string in our schema, we'll format it simply */}
+            <div className="whitespace-pre-wrap font-sans text-foreground/90 leading-relaxed text-[17px] md:text-[19px]">
+              {article.content}
+            </div>
           </div>
+          
+          {/* Tags */}
+          {(article as any).tags && (article as any).tags.length > 0 && (
+            <div className="mt-12 pt-8 border-t border-border">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-4">Tags</h3>
+              <div className="flex flex-wrap gap-2">
+                {(article as any).tags.map((tag: any) => (
+                  <Link key={tag.id} href={`/articles?tag=${tag.slug}`}>
+                    <Badge variant="secondary" className="hover:bg-primary hover:text-primary-foreground cursor-pointer text-xs uppercase tracking-wider px-3 py-1">
+                      {tag.name}
+                    </Badge>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

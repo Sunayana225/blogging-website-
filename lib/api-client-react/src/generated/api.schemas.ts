@@ -9,6 +9,27 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface Tag {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface CreateTagBody {
+  name: string;
+  slug: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  createdAt: string;
+}
+
 export interface Article {
   id: number;
   title: string;
@@ -16,11 +37,39 @@ export interface Article {
   excerpt: string;
   content: string;
   category: string;
+  categoryId?: number | null;
   imageUrl?: string | null;
+  imageAlt?: string | null;
   readTime: number;
+  wordCount?: number | null;
   featured: boolean;
+  status: string;
+  viewCount: number;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  tags: Tag[];
   publishedAt: string;
+  updatedAt: string;
   createdAt: string;
+}
+
+export interface CategoryWithArticles {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
+  createdAt: string;
+  articles: Article[];
+}
+
+export interface CreateCategoryBody {
+  name: string;
+  slug: string;
+  description?: string | null;
+  color?: string | null;
+  icon?: string | null;
 }
 
 export interface CreateArticleBody {
@@ -29,9 +78,16 @@ export interface CreateArticleBody {
   excerpt: string;
   content: string;
   category: string;
+  categoryId?: number | null;
   imageUrl?: string | null;
+  imageAlt?: string | null;
   readTime: number;
+  wordCount?: number | null;
   featured: boolean;
+  status: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  tagIds?: number[] | null;
 }
 
 export type ArticleStatsByCategoryItem = {
@@ -43,6 +99,47 @@ export interface ArticleStats {
   total: number;
   byCategory: ArticleStatsByCategoryItem[];
   featuredCount: number;
+  totalViews: number;
+}
+
+export interface Species {
+  id: number;
+  commonName: string;
+  scientificName: string;
+  slug: string;
+  kingdom?: string | null;
+  speciesClass?: string | null;
+  orderName?: string | null;
+  family?: string | null;
+  conservationStatus?: string | null;
+  habitat?: string | null;
+  geographicRange?: string | null;
+  diet?: string | null;
+  description?: string | null;
+  funFacts?: string | null;
+  imageUrl?: string | null;
+  iucnUrl?: string | null;
+  articleId?: number | null;
+  createdAt: string;
+}
+
+export interface CreateSpeciesBody {
+  commonName: string;
+  scientificName: string;
+  slug: string;
+  kingdom?: string | null;
+  speciesClass?: string | null;
+  orderName?: string | null;
+  family?: string | null;
+  conservationStatus?: string | null;
+  habitat?: string | null;
+  geographicRange?: string | null;
+  diet?: string | null;
+  description?: string | null;
+  funFacts?: string | null;
+  imageUrl?: string | null;
+  iucnUrl?: string | null;
+  articleId?: number | null;
 }
 
 export interface PortfolioClip {
@@ -93,7 +190,9 @@ export interface CreateNewsletterSubscriberBody {
 
 export type ListArticlesParams = {
   category?: string;
+  tag?: string;
   featured?: boolean;
+  status?: string;
   limit?: number;
   offset?: number;
   search?: string;
@@ -102,6 +201,12 @@ export type ListArticlesParams = {
 export type ListArticles200 = {
   articles: Article[];
   total: number;
+};
+
+export type ListSpeciesParams = {
+  kingdom?: string;
+  conservationStatus?: string;
+  search?: string;
 };
 
 export type ListPortfolioClipsParams = {

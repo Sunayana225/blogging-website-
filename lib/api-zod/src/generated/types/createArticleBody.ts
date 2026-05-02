@@ -12,7 +12,14 @@ export interface CreateArticleBody {
   excerpt: string;
   content: string;
   category: string;
+  categoryId?: number | null;
   imageUrl?: string | null;
+  imageAlt?: string | null;
   readTime: number;
+  wordCount?: number | null;
   featured: boolean;
+  status: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  tagIds?: number[] | null;
 }

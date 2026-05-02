@@ -163,7 +163,19 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="h-16 w-16 rounded-full bg-background/10 flex items-center justify-center">
+                <BookOpen className="h-8 w-8" />
+              </div>
+              <div>
+                <div className="font-serif text-4xl mb-1">
+                  {isLoadingStats ? <Skeleton className="h-10 w-16 bg-primary-foreground/20 mx-auto" /> : 
+                    stats?.total || 0}
+                </div>
+                <div className="text-sm font-medium tracking-wider uppercase text-primary-foreground/70">Articles</div>
+              </div>
+            </div>
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="h-16 w-16 rounded-full bg-background/10 flex items-center justify-center">
                 <Bird className="h-8 w-8" />
@@ -200,16 +212,16 @@ export default function Home() {
                 <div className="text-sm font-medium tracking-wider uppercase text-primary-foreground/70">Marine Ecosystems</div>
               </div>
             </div>
-            <div className="flex flex-col items-center text-center space-y-4">
+            <div className="flex flex-col items-center text-center space-y-4 col-span-2 md:col-span-1">
               <div className="h-16 w-16 rounded-full bg-background/10 flex items-center justify-center">
-                <Mountain className="h-8 w-8" />
+                <span className="font-serif text-2xl font-bold">👁</span>
               </div>
               <div>
                 <div className="font-serif text-4xl mb-1">
                   {isLoadingStats ? <Skeleton className="h-10 w-16 bg-primary-foreground/20 mx-auto" /> : 
-                    stats?.byCategory.find(c => c.category === 'Conservation')?.count || 0}
+                    (stats as any)?.totalViews || 0}
                 </div>
-                <div className="text-sm font-medium tracking-wider uppercase text-primary-foreground/70">Conservation</div>
+                <div className="text-sm font-medium tracking-wider uppercase text-primary-foreground/70">Total Views</div>
               </div>
             </div>
           </div>

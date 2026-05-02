@@ -6,12 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListArticlesParams = {
-  category?: string;
-  tag?: string;
-  featured?: boolean;
-  status?: string;
-  limit?: number;
-  offset?: number;
+export type ListSpeciesParams = {
+  kingdom?: string;
+  conservationStatus?: string;
   search?: string;
 };

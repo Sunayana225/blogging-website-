@@ -1,6 +1,5 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
   description: Nature Writing Platform API
@@ -9,15 +8,13 @@ servers:
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: articles
-    description: Article operations
+  - name: categories
+  - name: tags
+  - name: species
   - name: portfolio
-    description: Portfolio clip operations
   - name: contact
-    description: Contact form operations
   - name: newsletter
-    description: Newsletter subscriber operations
 paths:
   /healthz:
     get:
@@ -42,10 +39,18 @@ paths:
           in: query
           schema:
             type: string
+        - name: tag
+          in: query
+          schema:
+            type: string
         - name: featured
           in: query
           schema:
             type: boolean
+        - name: status
+          in: query
+          schema:
+            type: string
         - name: limit
           in: query
           schema:
@@ -125,7 +130,7 @@ paths:
     get:
       operationId: getArticle
       tags: [articles]
-      summary: Get an article by slug
+      summary: Get an article by slug (also increments view count)
       parameters:
         - name: slug
           in: path
@@ -168,6 +173,221 @@ paths:
       operationId: deleteArticle
       tags: [articles]
       summary: Delete an article
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryBody"
+      responses:
+        "201":
+          description: Created category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /categories/{slug}:
+    get:
+      operationId: getCategory
+      tags: [categories]
+      summary: Get a category by slug with its articles
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Category with articles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryWithArticles"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a category
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+
+  /tags:
+    get:
+      operationId: listTags
+      tags: [tags]
+      summary: List all tags
+      responses:
+        "200":
+          description: List of tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tag"
+    post:
+      operationId: createTag
+      tags: [tags]
+      summary: Create a tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTagBody"
+      responses:
+        "201":
+          description: Created tag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+
+  /tags/{id}:
+    delete:
+      operationId: deleteTag
+      tags: [tags]
+      summary: Delete a tag
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /species:
+    get:
+      operationId: listSpecies
+      tags: [species]
+      summary: List all species
+      parameters:
+        - name: kingdom
+          in: query
+          schema:
+            type: string
+        - name: conservationStatus
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of species
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Species"
+    post:
+      operationId: createSpecies
+      tags: [species]
+      summary: Create a species profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSpeciesBody"
+      responses:
+        "201":
+          description: Created species
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Species"
+
+  /species/{slug}:
+    get:
+      operationId: getSpecies
+      tags: [species]
+      summary: Get a species profile by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Species
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Species"
+        "404":
+          description: Not found
+    put:
+      operationId: updateSpecies
+      tags: [species]
+      summary: Update a species profile
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSpeciesBody"
+      responses:
+        "200":
+          description: Updated species
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Species"
+    delete:
+      operationId: deleteSpecies
+      tags: [species]
+      summary: Delete a species profile
       parameters:
         - name: slug
           in: path
@@ -290,6 +510,94 @@ components:
           type: string
       required: [status]
 
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+      required: [id, name, slug]
+
+    CreateTagBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+      required: [name, slug]
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, slug, createdAt]
+
+    CategoryWithArticles:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        articles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Article"
+      required: [id, name, slug, createdAt, articles]
+
+    CreateCategoryBody:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        icon:
+          type: string
+          nullable: true
+      required: [name, slug]
+
     Article:
       type: object
       properties:
@@ -305,20 +613,46 @@ components:
           type: string
         category:
           type: string
+        categoryId:
+          type: integer
+          nullable: true
         imageUrl:
+          type: string
+          nullable: true
+        imageAlt:
           type: string
           nullable: true
         readTime:
           type: integer
+        wordCount:
+          type: integer
+          nullable: true
         featured:
           type: boolean
+        status:
+          type: string
+        viewCount:
+          type: integer
+        seoTitle:
+          type: string
+          nullable: true
+        seoDescription:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
         publishedAt:
+          type: string
+          format: date-time
+        updatedAt:
           type: string
           format: date-time
         createdAt:
           type: string
           format: date-time
-      required: [id, title, slug, excerpt, content, category, readTime, featured, publishedAt, createdAt]
+      required: [id, title, slug, excerpt, content, category, readTime, featured, status, viewCount, tags, publishedAt, updatedAt, createdAt]
 
     CreateArticleBody:
       type: object
@@ -333,14 +667,36 @@ components:
           type: string
         category:
           type: string
+        categoryId:
+          type: integer
+          nullable: true
         imageUrl:
+          type: string
+          nullable: true
+        imageAlt:
           type: string
           nullable: true
         readTime:
           type: integer
+        wordCount:
+          type: integer
+          nullable: true
         featured:
           type: boolean
-      required: [title, slug, excerpt, content, category, readTime, featured]
+        status:
+          type: string
+        seoTitle:
+          type: string
+          nullable: true
+        seoDescription:
+          type: string
+          nullable: true
+        tagIds:
+          type: array
+          items:
+            type: integer
+          nullable: true
+      required: [title, slug, excerpt, content, category, readTime, featured, status]
 
     ArticleStats:
       type: object
@@ -359,7 +715,114 @@ components:
             required: [category, count]
         featuredCount:
           type: integer
-      required: [total, byCategory, featuredCount]
+        totalViews:
+          type: integer
+      required: [total, byCategory, featuredCount, totalViews]
+
+    Species:
+      type: object
+      properties:
+        id:
+          type: integer
+        commonName:
+          type: string
+        scientificName:
+          type: string
+        slug:
+          type: string
+        kingdom:
+          type: string
+          nullable: true
+        speciesClass:
+          type: string
+          nullable: true
+        orderName:
+          type: string
+          nullable: true
+        family:
+          type: string
+          nullable: true
+        conservationStatus:
+          type: string
+          nullable: true
+        habitat:
+          type: string
+          nullable: true
+        geographicRange:
+          type: string
+          nullable: true
+        diet:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        funFacts:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        iucnUrl:
+          type: string
+          nullable: true
+        articleId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, commonName, scientificName, slug, createdAt]
+
+    CreateSpeciesBody:
+      type: object
+      properties:
+        commonName:
+          type: string
+        scientificName:
+          type: string
+        slug:
+          type: string
+        kingdom:
+          type: string
+          nullable: true
+        speciesClass:
+          type: string
+          nullable: true
+        orderName:
+          type: string
+          nullable: true
+        family:
+          type: string
+          nullable: true
+        conservationStatus:
+          type: string
+          nullable: true
+        habitat:
+          type: string
+          nullable: true
+        geographicRange:
+          type: string
+          nullable: true
+        diet:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        funFacts:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        iucnUrl:
+          type: string
+          nullable: true
+        articleId:
+          type: integer
+          nullable: true
+      required: [commonName, scientificName, slug]
 
     PortfolioClip:
       type: object

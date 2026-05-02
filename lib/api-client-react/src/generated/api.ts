@@ -19,17 +19,25 @@ import type {
 import type {
   Article,
   ArticleStats,
+  Category,
+  CategoryWithArticles,
   ContactMessage,
   CreateArticleBody,
+  CreateCategoryBody,
   CreateContactMessageBody,
   CreateNewsletterSubscriberBody,
   CreatePortfolioClipBody,
+  CreateSpeciesBody,
+  CreateTagBody,
   HealthStatus,
   ListArticles200,
   ListArticlesParams,
   ListPortfolioClipsParams,
+  ListSpeciesParams,
   NewsletterSubscriber,
   PortfolioClip,
+  Species,
+  Tag,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -447,7 +455,7 @@ export function useGetArticleStats<
 }
 
 /**
- * @summary Get an article by slug
+ * @summary Get an article by slug (also increments view count)
  */
 export const getGetArticleUrl = (slug: string) => {
   return `/api/articles/${slug}`;
@@ -507,7 +515,7 @@ export type GetArticleQueryResult = NonNullable<
 export type GetArticleQueryError = ErrorType<void>;
 
 /**
- * @summary Get an article by slug
+ * @summary Get an article by slug (also increments view count)
  */
 
 export function useGetArticle<
@@ -702,6 +710,1011 @@ export const useDeleteArticle = <
   TContext
 > => {
   return useMutation(getDeleteArticleMutationOptions(options));
+};
+
+/**
+ * @summary List all categories
+ */
+export const getListCategoriesUrl = () => {
+  return `/api/categories`;
+};
+
+export const listCategories = async (
+  options?: RequestInit,
+): Promise<Category[]> => {
+  return customFetch<Category[]>(getListCategoriesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListCategoriesQueryKey = () => {
+  return [`/api/categories`] as const;
+};
+
+export const getListCategoriesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listCategories>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCategories>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListCategoriesQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listCategories>>> = ({
+    signal,
+  }) => listCategories({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listCategories>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListCategoriesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listCategories>>
+>;
+export type ListCategoriesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all categories
+ */
+
+export function useListCategories<
+  TData = Awaited<ReturnType<typeof listCategories>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listCategories>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListCategoriesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a category
+ */
+export const getCreateCategoryUrl = () => {
+  return `/api/categories`;
+};
+
+export const createCategory = async (
+  createCategoryBody: CreateCategoryBody,
+  options?: RequestInit,
+): Promise<Category> => {
+  return customFetch<Category>(getCreateCategoryUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createCategoryBody),
+  });
+};
+
+export const getCreateCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCategory>>,
+    TError,
+    { data: BodyType<CreateCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createCategory>>,
+  TError,
+  { data: BodyType<CreateCategoryBody> },
+  TContext
+> => {
+  const mutationKey = ["createCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createCategory>>,
+    { data: BodyType<CreateCategoryBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createCategory(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createCategory>>
+>;
+export type CreateCategoryMutationBody = BodyType<CreateCategoryBody>;
+export type CreateCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a category
+ */
+export const useCreateCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createCategory>>,
+    TError,
+    { data: BodyType<CreateCategoryBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createCategory>>,
+  TError,
+  { data: BodyType<CreateCategoryBody> },
+  TContext
+> => {
+  return useMutation(getCreateCategoryMutationOptions(options));
+};
+
+/**
+ * @summary Get a category by slug with its articles
+ */
+export const getGetCategoryUrl = (slug: string) => {
+  return `/api/categories/${slug}`;
+};
+
+export const getCategory = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<CategoryWithArticles> => {
+  return customFetch<CategoryWithArticles>(getGetCategoryUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetCategoryQueryKey = (slug: string) => {
+  return [`/api/categories/${slug}`] as const;
+};
+
+export const getGetCategoryQueryOptions = <
+  TData = Awaited<ReturnType<typeof getCategory>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCategory>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetCategoryQueryKey(slug);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getCategory>>> = ({
+    signal,
+  }) => getCategory(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getCategory>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetCategoryQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getCategory>>
+>;
+export type GetCategoryQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a category by slug with its articles
+ */
+
+export function useGetCategory<
+  TData = Awaited<ReturnType<typeof getCategory>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getCategory>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetCategoryQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Delete a category
+ */
+export const getDeleteCategoryUrl = (slug: string) => {
+  return `/api/categories/${slug}`;
+};
+
+export const deleteCategory = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteCategoryUrl(slug), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteCategoryMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCategory>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteCategory>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  const mutationKey = ["deleteCategory"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteCategory>>,
+    { slug: string }
+  > = (props) => {
+    const { slug } = props ?? {};
+
+    return deleteCategory(slug, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteCategoryMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteCategory>>
+>;
+
+export type DeleteCategoryMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a category
+ */
+export const useDeleteCategory = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteCategory>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteCategory>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  return useMutation(getDeleteCategoryMutationOptions(options));
+};
+
+/**
+ * @summary List all tags
+ */
+export const getListTagsUrl = () => {
+  return `/api/tags`;
+};
+
+export const listTags = async (options?: RequestInit): Promise<Tag[]> => {
+  return customFetch<Tag[]>(getListTagsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListTagsQueryKey = () => {
+  return [`/api/tags`] as const;
+};
+
+export const getListTagsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listTags>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listTags>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListTagsQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listTags>>> = ({
+    signal,
+  }) => listTags({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listTags>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListTagsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listTags>>
+>;
+export type ListTagsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all tags
+ */
+
+export function useListTags<
+  TData = Awaited<ReturnType<typeof listTags>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<Awaited<ReturnType<typeof listTags>>, TError, TData>;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListTagsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a tag
+ */
+export const getCreateTagUrl = () => {
+  return `/api/tags`;
+};
+
+export const createTag = async (
+  createTagBody: CreateTagBody,
+  options?: RequestInit,
+): Promise<Tag> => {
+  return customFetch<Tag>(getCreateTagUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createTagBody),
+  });
+};
+
+export const getCreateTagMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTag>>,
+    TError,
+    { data: BodyType<CreateTagBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createTag>>,
+  TError,
+  { data: BodyType<CreateTagBody> },
+  TContext
+> => {
+  const mutationKey = ["createTag"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createTag>>,
+    { data: BodyType<CreateTagBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createTag(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateTagMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createTag>>
+>;
+export type CreateTagMutationBody = BodyType<CreateTagBody>;
+export type CreateTagMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a tag
+ */
+export const useCreateTag = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createTag>>,
+    TError,
+    { data: BodyType<CreateTagBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createTag>>,
+  TError,
+  { data: BodyType<CreateTagBody> },
+  TContext
+> => {
+  return useMutation(getCreateTagMutationOptions(options));
+};
+
+/**
+ * @summary Delete a tag
+ */
+export const getDeleteTagUrl = (id: number) => {
+  return `/api/tags/${id}`;
+};
+
+export const deleteTag = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteTagUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteTagMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTag>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteTag>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["deleteTag"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteTag>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteTag(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteTagMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteTag>>
+>;
+
+export type DeleteTagMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a tag
+ */
+export const useDeleteTag = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteTag>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteTag>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getDeleteTagMutationOptions(options));
+};
+
+/**
+ * @summary List all species
+ */
+export const getListSpeciesUrl = (params?: ListSpeciesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/species?${stringifiedParams}`
+    : `/api/species`;
+};
+
+export const listSpecies = async (
+  params?: ListSpeciesParams,
+  options?: RequestInit,
+): Promise<Species[]> => {
+  return customFetch<Species[]>(getListSpeciesUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListSpeciesQueryKey = (params?: ListSpeciesParams) => {
+  return [`/api/species`, ...(params ? [params] : [])] as const;
+};
+
+export const getListSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listSpecies>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListSpeciesQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listSpecies>>> = ({
+    signal,
+  }) => listSpecies(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listSpecies>>
+>;
+export type ListSpeciesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all species
+ */
+
+export function useListSpecies<
+  TData = Awaited<ReturnType<typeof listSpecies>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListSpeciesParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListSpeciesQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create a species profile
+ */
+export const getCreateSpeciesUrl = () => {
+  return `/api/species`;
+};
+
+export const createSpecies = async (
+  createSpeciesBody: CreateSpeciesBody,
+  options?: RequestInit,
+): Promise<Species> => {
+  return customFetch<Species>(getCreateSpeciesUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createSpeciesBody),
+  });
+};
+
+export const getCreateSpeciesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSpecies>>,
+    TError,
+    { data: BodyType<CreateSpeciesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createSpecies>>,
+  TError,
+  { data: BodyType<CreateSpeciesBody> },
+  TContext
+> => {
+  const mutationKey = ["createSpecies"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createSpecies>>,
+    { data: BodyType<CreateSpeciesBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createSpecies(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateSpeciesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createSpecies>>
+>;
+export type CreateSpeciesMutationBody = BodyType<CreateSpeciesBody>;
+export type CreateSpeciesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Create a species profile
+ */
+export const useCreateSpecies = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createSpecies>>,
+    TError,
+    { data: BodyType<CreateSpeciesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createSpecies>>,
+  TError,
+  { data: BodyType<CreateSpeciesBody> },
+  TContext
+> => {
+  return useMutation(getCreateSpeciesMutationOptions(options));
+};
+
+/**
+ * @summary Get a species profile by slug
+ */
+export const getGetSpeciesUrl = (slug: string) => {
+  return `/api/species/${slug}`;
+};
+
+export const getSpecies = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<Species> => {
+  return customFetch<Species>(getGetSpeciesUrl(slug), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSpeciesQueryKey = (slug: string) => {
+  return [`/api/species/${slug}`] as const;
+};
+
+export const getGetSpeciesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSpecies>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetSpeciesQueryKey(slug);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSpecies>>> = ({
+    signal,
+  }) => getSpecies(slug, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!slug,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSpecies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSpeciesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSpecies>>
+>;
+export type GetSpeciesQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a species profile by slug
+ */
+
+export function useGetSpecies<
+  TData = Awaited<ReturnType<typeof getSpecies>>,
+  TError = ErrorType<void>,
+>(
+  slug: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSpecies>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSpeciesQueryOptions(slug, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a species profile
+ */
+export const getUpdateSpeciesUrl = (slug: string) => {
+  return `/api/species/${slug}`;
+};
+
+export const updateSpecies = async (
+  slug: string,
+  createSpeciesBody: CreateSpeciesBody,
+  options?: RequestInit,
+): Promise<Species> => {
+  return customFetch<Species>(getUpdateSpeciesUrl(slug), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createSpeciesBody),
+  });
+};
+
+export const getUpdateSpeciesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateSpecies>>,
+    TError,
+    { slug: string; data: BodyType<CreateSpeciesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateSpecies>>,
+  TError,
+  { slug: string; data: BodyType<CreateSpeciesBody> },
+  TContext
+> => {
+  const mutationKey = ["updateSpecies"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateSpecies>>,
+    { slug: string; data: BodyType<CreateSpeciesBody> }
+  > = (props) => {
+    const { slug, data } = props ?? {};
+
+    return updateSpecies(slug, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateSpeciesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateSpecies>>
+>;
+export type UpdateSpeciesMutationBody = BodyType<CreateSpeciesBody>;
+export type UpdateSpeciesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a species profile
+ */
+export const useUpdateSpecies = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateSpecies>>,
+    TError,
+    { slug: string; data: BodyType<CreateSpeciesBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateSpecies>>,
+  TError,
+  { slug: string; data: BodyType<CreateSpeciesBody> },
+  TContext
+> => {
+  return useMutation(getUpdateSpeciesMutationOptions(options));
+};
+
+/**
+ * @summary Delete a species profile
+ */
+export const getDeleteSpeciesUrl = (slug: string) => {
+  return `/api/species/${slug}`;
+};
+
+export const deleteSpecies = async (
+  slug: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteSpeciesUrl(slug), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteSpeciesMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteSpecies>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteSpecies>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  const mutationKey = ["deleteSpecies"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteSpecies>>,
+    { slug: string }
+  > = (props) => {
+    const { slug } = props ?? {};
+
+    return deleteSpecies(slug, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteSpeciesMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteSpecies>>
+>;
+
+export type DeleteSpeciesMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Delete a species profile
+ */
+export const useDeleteSpecies = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteSpecies>>,
+    TError,
+    { slug: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteSpecies>>,
+  TError,
+  { slug: string },
+  TContext
+> => {
+  return useMutation(getDeleteSpeciesMutationOptions(options));
 };
 
 /**

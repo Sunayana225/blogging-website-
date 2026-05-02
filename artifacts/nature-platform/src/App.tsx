@@ -9,6 +9,8 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Articles from "@/pages/Articles";
 import ArticleReader from "@/pages/ArticleReader";
+import Species from "@/pages/Species";
+import SpeciesProfile from "@/pages/SpeciesProfile";
 import Portfolio from "@/pages/Portfolio";
 import Services from "@/pages/Services";
 import About from "@/pages/About";
@@ -24,6 +26,8 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/articles" component={Articles} />
         <Route path="/articles/:slug" component={ArticleReader} />
+        <Route path="/species" component={Species} />
+        <Route path="/species/:slug" component={SpeciesProfile} />
         <Route path="/portfolio" component={Portfolio} />
         <Route path="/services" component={Services} />
         <Route path="/about" component={About} />

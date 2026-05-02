@@ -22,7 +22,9 @@ export const listArticlesQueryOffsetDefault = 0;
 
 export const ListArticlesQueryParams = zod.object({
   category: zod.coerce.string().optional(),
+  tag: zod.coerce.string().optional(),
   featured: zod.coerce.boolean().optional(),
+  status: zod.coerce.string().optional(),
   limit: zod.coerce.number().default(listArticlesQueryLimitDefault),
   offset: zod.coerce.number().default(listArticlesQueryOffsetDefault),
   search: zod.coerce.string().optional(),
@@ -37,10 +39,25 @@ export const ListArticlesResponse = zod.object({
       excerpt: zod.string(),
       content: zod.string(),
       category: zod.string(),
+      categoryId: zod.number().nullish(),
       imageUrl: zod.string().nullish(),
+      imageAlt: zod.string().nullish(),
       readTime: zod.number(),
+      wordCount: zod.number().nullish(),
       featured: zod.boolean(),
+      status: zod.string(),
+      viewCount: zod.number(),
+      seoTitle: zod.string().nullish(),
+      seoDescription: zod.string().nullish(),
+      tags: zod.array(
+        zod.object({
+          id: zod.number(),
+          name: zod.string(),
+          slug: zod.string(),
+        }),
+      ),
       publishedAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -56,9 +73,16 @@ export const CreateArticleBody = zod.object({
   excerpt: zod.string(),
   content: zod.string(),
   category: zod.string(),
+  categoryId: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
+  imageAlt: zod.string().nullish(),
   readTime: zod.number(),
+  wordCount: zod.number().nullish(),
   featured: zod.boolean(),
+  status: zod.string(),
+  seoTitle: zod.string().nullish(),
+  seoDescription: zod.string().nullish(),
+  tagIds: zod.array(zod.number()).nullish(),
 });
 
 /**
@@ -71,10 +95,25 @@ export const GetFeaturedArticlesResponseItem = zod.object({
   excerpt: zod.string(),
   content: zod.string(),
   category: zod.string(),
+  categoryId: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
+  imageAlt: zod.string().nullish(),
   readTime: zod.number(),
+  wordCount: zod.number().nullish(),
   featured: zod.boolean(),
+  status: zod.string(),
+  viewCount: zod.number(),
+  seoTitle: zod.string().nullish(),
+  seoDescription: zod.string().nullish(),
+  tags: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      slug: zod.string(),
+    }),
+  ),
   publishedAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
 });
 export const GetFeaturedArticlesResponse = zod.array(
@@ -93,10 +132,11 @@ export const GetArticleStatsResponse = zod.object({
     }),
   ),
   featuredCount: zod.number(),
+  totalViews: zod.number(),
 });
 
 /**
- * @summary Get an article by slug
+ * @summary Get an article by slug (also increments view count)
  */
 export const GetArticleParams = zod.object({
   slug: zod.coerce.string(),
@@ -109,10 +149,25 @@ export const GetArticleResponse = zod.object({
   excerpt: zod.string(),
   content: zod.string(),
   category: zod.string(),
+  categoryId: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
+  imageAlt: zod.string().nullish(),
   readTime: zod.number(),
+  wordCount: zod.number().nullish(),
   featured: zod.boolean(),
+  status: zod.string(),
+  viewCount: zod.number(),
+  seoTitle: zod.string().nullish(),
+  seoDescription: zod.string().nullish(),
+  tags: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      slug: zod.string(),
+    }),
+  ),
   publishedAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
 });
 
@@ -129,9 +184,16 @@ export const UpdateArticleBody = zod.object({
   excerpt: zod.string(),
   content: zod.string(),
   category: zod.string(),
+  categoryId: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
+  imageAlt: zod.string().nullish(),
   readTime: zod.number(),
+  wordCount: zod.number().nullish(),
   featured: zod.boolean(),
+  status: zod.string(),
+  seoTitle: zod.string().nullish(),
+  seoDescription: zod.string().nullish(),
+  tagIds: zod.array(zod.number()).nullish(),
 });
 
 export const UpdateArticleResponse = zod.object({
@@ -141,10 +203,25 @@ export const UpdateArticleResponse = zod.object({
   excerpt: zod.string(),
   content: zod.string(),
   category: zod.string(),
+  categoryId: zod.number().nullish(),
   imageUrl: zod.string().nullish(),
+  imageAlt: zod.string().nullish(),
   readTime: zod.number(),
+  wordCount: zod.number().nullish(),
   featured: zod.boolean(),
+  status: zod.string(),
+  viewCount: zod.number(),
+  seoTitle: zod.string().nullish(),
+  seoDescription: zod.string().nullish(),
+  tags: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      slug: zod.string(),
+    }),
+  ),
   publishedAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
   createdAt: zod.coerce.date(),
 });
 
@@ -152,6 +229,245 @@ export const UpdateArticleResponse = zod.object({
  * @summary Delete an article
  */
 export const DeleteArticleParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+/**
+ * @summary List all categories
+ */
+export const ListCategoriesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string().nullish(),
+  color: zod.string().nullish(),
+  icon: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem);
+
+/**
+ * @summary Create a category
+ */
+export const CreateCategoryBody = zod.object({
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string().nullish(),
+  color: zod.string().nullish(),
+  icon: zod.string().nullish(),
+});
+
+/**
+ * @summary Get a category by slug with its articles
+ */
+export const GetCategoryParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetCategoryResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+  description: zod.string().nullish(),
+  color: zod.string().nullish(),
+  icon: zod.string().nullish(),
+  createdAt: zod.coerce.date(),
+  articles: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      slug: zod.string(),
+      excerpt: zod.string(),
+      content: zod.string(),
+      category: zod.string(),
+      categoryId: zod.number().nullish(),
+      imageUrl: zod.string().nullish(),
+      imageAlt: zod.string().nullish(),
+      readTime: zod.number(),
+      wordCount: zod.number().nullish(),
+      featured: zod.boolean(),
+      status: zod.string(),
+      viewCount: zod.number(),
+      seoTitle: zod.string().nullish(),
+      seoDescription: zod.string().nullish(),
+      tags: zod.array(
+        zod.object({
+          id: zod.number(),
+          name: zod.string(),
+          slug: zod.string(),
+        }),
+      ),
+      publishedAt: zod.coerce.date(),
+      updatedAt: zod.coerce.date(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Delete a category
+ */
+export const DeleteCategoryParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+/**
+ * @summary List all tags
+ */
+export const ListTagsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  slug: zod.string(),
+});
+export const ListTagsResponse = zod.array(ListTagsResponseItem);
+
+/**
+ * @summary Create a tag
+ */
+export const CreateTagBody = zod.object({
+  name: zod.string(),
+  slug: zod.string(),
+});
+
+/**
+ * @summary Delete a tag
+ */
+export const DeleteTagParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary List all species
+ */
+export const ListSpeciesQueryParams = zod.object({
+  kingdom: zod.coerce.string().optional(),
+  conservationStatus: zod.coerce.string().optional(),
+  search: zod.coerce.string().optional(),
+});
+
+export const ListSpeciesResponseItem = zod.object({
+  id: zod.number(),
+  commonName: zod.string(),
+  scientificName: zod.string(),
+  slug: zod.string(),
+  kingdom: zod.string().nullish(),
+  speciesClass: zod.string().nullish(),
+  orderName: zod.string().nullish(),
+  family: zod.string().nullish(),
+  conservationStatus: zod.string().nullish(),
+  habitat: zod.string().nullish(),
+  geographicRange: zod.string().nullish(),
+  diet: zod.string().nullish(),
+  description: zod.string().nullish(),
+  funFacts: zod.string().nullish(),
+  imageUrl: zod.string().nullish(),
+  iucnUrl: zod.string().nullish(),
+  articleId: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const ListSpeciesResponse = zod.array(ListSpeciesResponseItem);
+
+/**
+ * @summary Create a species profile
+ */
+export const CreateSpeciesBody = zod.object({
+  commonName: zod.string(),
+  scientificName: zod.string(),
+  slug: zod.string(),
+  kingdom: zod.string().nullish(),
+  speciesClass: zod.string().nullish(),
+  orderName: zod.string().nullish(),
+  family: zod.string().nullish(),
+  conservationStatus: zod.string().nullish(),
+  habitat: zod.string().nullish(),
+  geographicRange: zod.string().nullish(),
+  diet: zod.string().nullish(),
+  description: zod.string().nullish(),
+  funFacts: zod.string().nullish(),
+  imageUrl: zod.string().nullish(),
+  iucnUrl: zod.string().nullish(),
+  articleId: zod.number().nullish(),
+});
+
+/**
+ * @summary Get a species profile by slug
+ */
+export const GetSpeciesParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const GetSpeciesResponse = zod.object({
+  id: zod.number(),
+  commonName: zod.string(),
+  scientificName: zod.string(),
+  slug: zod.string(),
+  kingdom: zod.string().nullish(),
+  speciesClass: zod.string().nullish(),
+  orderName: zod.string().nullish(),
+  family: zod.string().nullish(),
+  conservationStatus: zod.string().nullish(),
+  habitat: zod.string().nullish(),
+  geographicRange: zod.string().nullish(),
+  diet: zod.string().nullish(),
+  description: zod.string().nullish(),
+  funFacts: zod.string().nullish(),
+  imageUrl: zod.string().nullish(),
+  iucnUrl: zod.string().nullish(),
+  articleId: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Update a species profile
+ */
+export const UpdateSpeciesParams = zod.object({
+  slug: zod.coerce.string(),
+});
+
+export const UpdateSpeciesBody = zod.object({
+  commonName: zod.string(),
+  scientificName: zod.string(),
+  slug: zod.string(),
+  kingdom: zod.string().nullish(),
+  speciesClass: zod.string().nullish(),
+  orderName: zod.string().nullish(),
+  family: zod.string().nullish(),
+  conservationStatus: zod.string().nullish(),
+  habitat: zod.string().nullish(),
+  geographicRange: zod.string().nullish(),
+  diet: zod.string().nullish(),
+  description: zod.string().nullish(),
+  funFacts: zod.string().nullish(),
+  imageUrl: zod.string().nullish(),
+  iucnUrl: zod.string().nullish(),
+  articleId: zod.number().nullish(),
+});
+
+export const UpdateSpeciesResponse = zod.object({
+  id: zod.number(),
+  commonName: zod.string(),
+  scientificName: zod.string(),
+  slug: zod.string(),
+  kingdom: zod.string().nullish(),
+  speciesClass: zod.string().nullish(),
+  orderName: zod.string().nullish(),
+  family: zod.string().nullish(),
+  conservationStatus: zod.string().nullish(),
+  habitat: zod.string().nullish(),
+  geographicRange: zod.string().nullish(),
+  diet: zod.string().nullish(),
+  description: zod.string().nullish(),
+  funFacts: zod.string().nullish(),
+  imageUrl: zod.string().nullish(),
+  iucnUrl: zod.string().nullish(),
+  articleId: zod.number().nullish(),
+  createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete a species profile
+ */
+export const DeleteSpeciesParams = zod.object({
   slug: zod.coerce.string(),
 });
 
