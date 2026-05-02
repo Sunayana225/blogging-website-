@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Nature Writing Platform"
+version = "1.0.0"
+id = "artifacts/nature-platform"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22885
+
+[services.development]
+run = "pnpm --filter @workspace/nature-platform run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nature-platform", "run", "build" ]
+publicDir = "artifacts/nature-platform/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22885"
+BASE_PATH = "/"

@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "6yU1fsIlQLU8VKLUGbVdZ"
+uri = "file://artifacts/nature-platform/public/images/hero-forest.png"
+type = "image"
+title = "Forest light canopy"
