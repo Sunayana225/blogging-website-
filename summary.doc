@@ -1,0 +1,252 @@
+THE VERDANT PAGE — PROJECT SUMMARY
+====================================
+Nature Writing Platform | Full-Stack Web Application
+Built on: React + Vite (frontend) · Express (API) · PostgreSQL (database)
+Monorepo managed with pnpm workspaces
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. PROJECT OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A professional portfolio and publishing site for a nature writer covering
+animals, plants, oceans, and conservation. The platform supports article
+publishing, species profiles, a portfolio of press clips, service offerings,
+contact/newsletter capture, and a full REST API backend.
+
+Brand palette: Forest green (#2D5016) + Ivory (#F5F0E8)
+Typography: Fraunces (serif headings) + Plus Jakarta Sans (body)
+Animations: Framer Motion throughout
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. REPOSITORY STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/
+├── artifacts/
+│   ├── nature-platform/        React + Vite frontend (served at /)
+│   └── api-server/             Express REST API (served at /api)
+├── lib/
+│   ├── db/                     Drizzle ORM schema + migrations
+│   ├── api-spec/               OpenAPI 3.0 spec (openapi.yaml)
+│   ├── api-client-react/       Orval-generated React Query hooks
+│   └── api-zod/                Orval-generated Zod validators
+└── scripts/                    Shared utility scripts
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. DATABASE SCHEMA  (lib/db/src/schema/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TABLE: articles
+  id, title, slug, excerpt, content, image_url, image_alt
+  category_id (FK → categories), category (text cache)
+  author, read_time, word_count, view_count
+  status (published | draft | archived)
+  seo_title, seo_description
+  published_at, created_at, updated_at
+
+TABLE: categories
+  id, name, slug, description, color, icon, created_at
+  SEEDED: Animals · Oceans · Plants · Conservation · Field Notes · Human & Nature
+
+TABLE: tags
+  id, name, slug, created_at
+  SEEDED: 12 tags (coral reef, climate change, endangered species, rewilding,
+           fungi, ocean health, behavior, field research, botany, marine biology,
+           predators, ecosystems)
+
+TABLE: article_tags  (many-to-many join)
+  article_id (FK), tag_id (FK)
+
+TABLE: species
+  id, common_name, scientific_name, slug, kingdom, species_class
+  order_name, family, conservation_status (IUCN codes)
+  habitat, geographic_range, diet, description
+  fun_facts (JSON array), image_url, iucn_url, article_id (FK)
+  created_at
+  SEEDED: African Elephant · Blue Whale · Mimic Octopus · Corpse Flower · Snow Leopard
+
+TABLE: portfolio_clips
+  id, title, publication, url, date, category, description
+  word_count, image_url, featured, created_at
+  SEEDED: 7 portfolio clips across major publications
+
+TABLE: contact_messages
+  id, name, email, subject, message, created_at
+
+TABLE: newsletter_subscribers
+  id, email, name, status (active | unsubscribed), subscribed_at
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. REST API  (artifacts/api-server — served at /api)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLES
+  GET    /api/articles              List (filter: status, categoryId, tag, search, limit, offset)
+  POST   /api/articles              Create article
+  GET    /api/articles/:slug        Get by slug (auto-increments viewCount)
+  PUT    /api/articles/:slug        Update article
+  DELETE /api/articles/:slug        Delete article
+  POST   /api/articles/:id/tags     Attach tags to article
+
+CATEGORIES
+  GET    /api/categories            List all categories
+  POST   /api/categories            Create category
+  GET    /api/categories/:slug      Get by slug
+  PUT    /api/categories/:slug      Update
+  DELETE /api/categories/:slug      Delete
+
+TAGS
+  GET    /api/tags                  List all tags
+  POST   /api/tags                  Create tag
+  GET    /api/tags/:slug            Get by slug
+  PUT    /api/tags/:slug            Update
+  DELETE /api/tags/:slug            Delete
+
+SPECIES
+  GET    /api/species               List (filter: kingdom, conservationStatus, search)
+  POST   /api/species               Create species profile
+  GET    /api/species/:slug         Get species by slug
+  PUT    /api/species/:slug         Update
+  DELETE /api/species/:slug         Delete
+
+PORTFOLIO
+  GET    /api/portfolio             List clips (filter: featured)
+  POST   /api/portfolio             Create clip
+  GET    /api/portfolio/:id         Get by id
+  PUT    /api/portfolio/:id         Update
+  DELETE /api/portfolio/:id         Delete
+
+CONTACT
+  POST   /api/contact               Submit contact message
+  GET    /api/contact               List all messages (admin)
+
+NEWSLETTER
+  POST   /api/newsletter/subscribe  Subscribe email
+  POST   /api/newsletter/unsubscribe Unsubscribe email
+  GET    /api/newsletter            List subscribers (admin)
+
+HEALTH
+  GET    /api/healthz               Health check
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. CODE GENERATION PIPELINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Source of truth: lib/api-spec/openapi.yaml
+
+Running `pnpm --filter @workspace/api-spec run codegen` generates:
+  • lib/api-client-react/src/generated/api.ts       — React Query hooks
+  • lib/api-client-react/src/generated/api.schemas.ts — TypeScript types
+  • lib/api-zod/src/generated/api.ts               — Zod validation schemas
+
+Frontend consumes typed hooks like:
+  useListArticles(params)   useGetArticle(slug)
+  useListSpecies(params)    useListCategories()   etc.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. FRONTEND PAGES  (artifacts/nature-platform/src/pages/)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Route         File                  Description
+/             Home.tsx              Hero, featured articles, stats, newsletter CTA
+/articles     Articles.tsx          Article grid with live category filter + search
+/articles/:s  ArticleReader.tsx     Full article with view count, tags, share buttons
+/species      Species.tsx           Species grid with kingdom + IUCN status filters
+/species/:s   SpeciesProfile.tsx    Full species profile: facts, conservation, fun facts
+/portfolio    Portfolio.tsx         Press clips / published work
+/services     Services.tsx          Writing services offered
+/about        About.tsx             Author bio page
+/contact      Contact.tsx           Contact form (posts to API)
+/newsletter   Newsletter.tsx        Newsletter signup (posts to API)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. SEEDED CONTENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ARTICLES (6 published, all with cover images):
+  1. The Secret Social Lives of Elephants
+  2. How Coral Reefs Communicate — And Why It Matters
+  3. The Intelligence of Mycelium Networks
+  4. Why Are Coral Reefs Bleaching?
+  5. The Mimic Octopus: A Master of Disguise
+  6. Rewilding Europe: Does It Work?
+
+SPECIES (5 profiles, all with cover images):
+  1. African Elephant  (EN — Endangered)
+  2. Blue Whale        (EN — Endangered)
+  3. Mimic Octopus     (LC — Least Concern)
+  4. Corpse Flower     (VU — Vulnerable)
+  5. Snow Leopard      (VU — Vulnerable)
+
+PORTFOLIO CLIPS: 7 clips seeded from sample publications
+CATEGORIES: 6 (Animals, Oceans, Plants, Conservation, Field Notes, Human & Nature)
+TAGS: 12 topic tags linked to articles
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. IMAGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Stored in: artifacts/nature-platform/public/images/
+
+AI-generated (Imagen 4):
+  coral-reefs-communicate.png
+  mycelium-networks.png
+  species-african-elephant.png
+  species-blue-whale.png
+  species-mimic-octopus.png
+  species-corpse-flower.png
+
+Unsplash (remote URLs in DB):
+  elephants-social-lives    — elephant herd at sunset
+  why-coral-reefs-bleaching — bleached coral reef
+  mimic-octopus article     — octopus underwater
+  rewilding-europe          — wolf in forest
+  snow-leopard species      — snow leopard portrait
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. KEY TECHNICAL DECISIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Contract-first API: OpenAPI spec drives all type generation (Orval + Zod)
+• Drizzle ORM: type-safe schema defined in lib/db, migrations via drizzle-kit
+• View count: GET /api/articles/:slug auto-increments view_count in the DB
+• Category colors: stored in DB, rendered as colored dots in the article filter UI
+• IUCN status colors: LC=green, NT=yellow, VU=orange, EN=red, CR=dark red, EX=grey
+• React Query: all data fetching uses generated hooks with proper query keys
+• Framer Motion: hover lifts on cards, fade-in on page load, staggered grid animations
+• Codegen fix: orval generates duplicate exports; patched with printf override in
+  lib/api-spec/package.json to write a clean index.ts for api-zod
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. PENDING / FUTURE WORK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• GitHub push — remote configured (https://github.com/Sunayana225/blogging-website-)
+  Push via Replit's Version Control panel (git icon, left sidebar) or
+  provide a GitHub Personal Access Token for agent-assisted push.
+
+• Admin panel — CRUD UI for managing articles, species, and portfolio from browser
+• Markdown rendering — article body currently plain text; add react-markdown for
+  rich formatting (headers, bold, blockquotes, images inline)
+• SEO meta tags — add react-helmet-async for per-page title/description/OG tags
+• Authentication — protect admin routes (Replit Auth or Clerk)
+• Image upload — replace URL strings with object storage (Replit App Storage)
+• Search — full-text search across articles and species using PostgreSQL tsvector
+• Pagination — articles and species lists are unpaged; add cursor-based pagination
+• RSS feed — /api/feed.xml for subscribers and aggregators
+• Newsletter integration — hook up to Mailchimp or Resend for actual email delivery
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+END OF SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
