@@ -6,3 +6,39 @@ id = "6yU1fsIlQLU8VKLUGbVdZ"
 uri = "file://artifacts/nature-platform/public/images/hero-forest.png"
 type = "image"
 title = "Forest light canopy"
+
+[[generated]]
+id = "Kl21m2u0gtFJInEPMNV2r"
+uri = "file://artifacts/nature-platform/public/images/coral-reefs-communicate.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "2vd0UddfZvxUl_dv9A5vG"
+uri = "file://artifacts/nature-platform/public/images/mycelium-networks.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "VDxMOeYh2cS5gqRonhUys"
+uri = "file://artifacts/nature-platform/public/images/species-african-elephant.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "unzn4L03P4W21aem5rgDZ"
+uri = "file://artifacts/nature-platform/public/images/species-blue-whale.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "ba0suaae0cI6Z66ui3eqi"
+uri = "file://artifacts/nature-platform/public/images/species-mimic-octopus.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "POyLFZBKaakeTfs-Dkq4U"
+uri = "file://artifacts/nature-platform/public/images/species-corpse-flower.png"
+type = "image"
+title = "generated_image"
