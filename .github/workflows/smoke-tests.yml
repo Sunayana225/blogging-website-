@@ -31,7 +31,11 @@ jobs:
       - name: Apply DB schema (Drizzle)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: pnpm --filter @workspace/db run push
+        shell: bash
+        run: |
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > lib/db/.env
+          pnpm --filter @workspace/db run push
+          rm -f lib/db/.env
 
       - name: Build API
         run: |
