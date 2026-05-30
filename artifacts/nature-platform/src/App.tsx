@@ -11,8 +11,6 @@ import Articles from "@/pages/Articles";
 import ArticleReader from "@/pages/ArticleReader";
 import Species from "@/pages/Species";
 import SpeciesProfile from "@/pages/SpeciesProfile";
-import Portfolio from "@/pages/Portfolio";
-import Services from "@/pages/Services";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Newsletter from "@/pages/Newsletter";
@@ -28,8 +26,6 @@ function Router() {
         <Route path="/articles/:slug" component={ArticleReader} />
         <Route path="/species" component={Species} />
         <Route path="/species/:slug" component={SpeciesProfile} />
-        <Route path="/portfolio" component={Portfolio} />
-        <Route path="/services" component={Services} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
         <Route path="/newsletter" component={Newsletter} />

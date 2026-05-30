@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
 import { format } from "date-fns";
-import type { Article, Tag } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Article, Tag } from "@workspace/api-client-react";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +44,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
                 </h3>
                 {article.tags && article.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {article.tags.map(tag => (
+                    {article.tags.map((tag: Tag) => (
                       <Badge key={tag.id} variant="secondary" className="text-[10px] uppercase tracking-wider">{tag.name}</Badge>
                     ))}
                   </div>
@@ -95,7 +95,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
             </h3>
             {article.tags && article.tags.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-1">
-                {article.tags.map(tag => (
+                {article.tags.map((tag: Tag) => (
                   <Badge key={tag.id} variant="secondary" className="text-[10px] uppercase tracking-wider">{tag.name}</Badge>
                 ))}
               </div>

@@ -1,0 +1,53 @@
+name: Smoke Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: http://localhost:3000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply DB schema (Drizzle)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: pnpm --filter @workspace/db run push
+
+      - name: Build API
+        run: |
+          pushd artifacts/api-server
+          pnpm run build
+          popd
+
+      - name: Start API
+        env:
+          PORT: 3000
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pushd artifacts/api-server
+          node --enable-source-maps ./dist/index.mjs &
+          sleep 2
+          popd
+
+      - name: Run smoke tests
+        run: node scripts/smoke-tests.mjs
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-results
+          path: smoke-results.json

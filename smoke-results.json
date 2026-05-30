@@ -1,0 +1,61 @@
+{
+  "ts": "2026-05-27T19:19:29.580Z",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "path": "/api/healthz",
+      "status": 200,
+      "body": "{\"status\":\"ok\"}"
+    },
+    {
+      "path": "/api/articles",
+      "status": 200,
+      "body": "{\"articles\":[{\"id\":1,\"title\":\"Seed Article\",\"slug\":\"seed-article\",\"excerpt\":\"Seed excerpt\",\"content\":\"Seed content\",\"category\":\"General\",\"categoryId\":1,\"imageUrl\":null,\"imageAlt\":null,\"readTime\":1,\"wo"
+    },
+    {
+      "path": "/api/articles/featured",
+      "status": 200,
+      "body": "[{\"id\":1,\"title\":\"Seed Article\",\"slug\":\"seed-article\",\"excerpt\":\"Seed excerpt\",\"content\":\"Seed content\",\"category\":\"General\",\"categoryId\":1,\"imageUrl\":null,\"imageAlt\":null,\"readTime\":1,\"wordCount\":100"
+    },
+    {
+      "path": "/api/articles/stats",
+      "status": 200,
+      "body": "{\"total\":1,\"byCategory\":[{\"category\":\"General\",\"count\":1}],\"featuredCount\":1,\"totalViews\":0}"
+    },
+    {
+      "path": "/api/categories",
+      "status": 200,
+      "body": "[{\"id\":1,\"name\":\"General\",\"slug\":\"general\",\"description\":\"Seed category\",\"color\":null,\"icon\":null,\"createdAt\":\"2026-05-27T18:53:29.741Z\"}]"
+    },
+    {
+      "path": "/api/tags",
+      "status": 200,
+      "body": "[{\"id\":1,\"name\":\"SeedTag\",\"slug\":\"seed-tag\"}]"
+    },
+    {
+      "path": "/api/species",
+      "status": 200,
+      "body": "[{\"id\":1,\"commonName\":\"Seed Species\",\"scientificName\":\"Species seedus\",\"slug\":\"seed-species\",\"kingdom\":\"Animalia\",\"speciesClass\":null,\"orderName\":null,\"family\":null,\"conservationStatus\":null,\"habitat\""
+    },
+    {
+      "path": "/api/portfolio",
+      "status": 200,
+      "body": "[{\"id\":1,\"title\":\"Seed Clip\",\"publication\":\"Seed Pub\",\"url\":\"https://example.com\",\"date\":\"2026-05-28\",\"category\":\"General\",\"createdAt\":\"2026-05-27T18:53:29.741Z\"}]"
+    },
+    {
+      "path": "/api/newsletter",
+      "status": 200,
+      "body": "[{\"id\":1,\"email\":\"seed+1@example.com\",\"name\":\"Seed Subscriber\",\"createdAt\":\"2026-05-27T18:53:29.741Z\"},{\"id\":2,\"email\":\"smoke+1779908217097@example.com\",\"name\":null,\"createdAt\":\"2026-05-27T18:57:01.40"
+    },
+    {
+      "path": "/api/newsletter (POST)",
+      "status": 201,
+      "body": "{\"id\":3,\"email\":\"smoke+1779909569427@example.com\",\"name\":null,\"createdAt\":\"2026-05-27T19:19:33.766Z\"}"
+    },
+    {
+      "path": "/api/contact (POST)",
+      "status": 201,
+      "body": "{\"id\":3,\"name\":\"Smoke\",\"email\":\"smoke@1779909569514.example\",\"subject\":\"Smoke\",\"message\":\"hello\",\"createdAt\":\"2026-05-27T19:19:33.838Z\"}"
+    }
+  ]
+}

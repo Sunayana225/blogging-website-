@@ -239,10 +239,9 @@ function renderCards(items, renderItem) {
   return `<div class="grid cards">${items.map(renderItem).join("")}</div>`;
 }
 
-function renderRootSummary({ featuredArticles, stats, articles, species, portfolio }) {
+function renderRootSummary({ featuredArticles, stats, articles, species }) {
   const topArticles = featuredArticles.slice(0, 3);
   const topSpecies = species.slice(0, 3);
-  const topPortfolio = portfolio.slice(0, 3);
 
   return `
     <section id="prerender-summary" style="display:none">
@@ -255,7 +254,6 @@ function renderRootSummary({ featuredArticles, stats, articles, species, portfol
           `Total views: ${stats.totalViews}`,
           ...topArticles.map((article) => `${article.title} — ${article.excerpt}`),
           ...topSpecies.map((item) => `${item.commonName} (${item.scientificName}) — ${item.description || ""}`),
-          ...topPortfolio.map((clip) => `${clip.title} — ${clip.publication}`),
         ],
       )}
     </section>
@@ -273,11 +271,10 @@ function renderHomePage({ featuredArticles, stats }) {
         <h1>Wildleaf Journal</h1>
         <p class="lede">Essays, field notes, species profiles, and published work from the natural world.</p>
         <nav class="topnav" aria-label="Primary">
-          <a href="/">Home</a>
-          <a href="/articles/">Articles</a>
-          <a href="/species/">Species</a>
-          <a href="/portfolio/">Portfolio</a>
-        </nav>
+            <a href="/">Home</a>
+            <a href="/articles/">Articles</a>
+            <a href="/species/">Species</a>
+          </nav>
       </header>
       <div class="content">
         <section class="section">
@@ -465,42 +462,7 @@ function renderSpeciesDetail(species) {
   });
 }
 
-function renderPortfolioIndex({ clips }) {
-  const grouped = clips.reduce((accumulator, clip) => {
-    (accumulator[clip.category] ||= []).push(clip);
-    return accumulator;
-  }, {});
-
-  return renderDocument({
-    title: "Portfolio | Wildleaf Journal",
-    description: "Published work and feature articles across magazines and journals.",
-    canonicalPath: "/portfolio/",
-    body: `
-      <header>
-        <a class="backlink" href="/">← Back to home</a>
-        <span class="eyebrow">Portfolio</span>
-        <h1>Published Work</h1>
-        <p class="lede">A selection of feature articles, essays, and scientific communication published across different platforms.</p>
-      </header>
-      <div class="content">
-        ${Object.entries(grouped)
-          .map(([category, categoryClips]) => `
-            <section class="section">
-              <h2>${escapeHtml(category)}</h2>
-              ${renderCards(categoryClips, (clip) => `
-                <article class="card">
-                  <h3><a href="${escapeHtml(clip.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(clip.title)}</a></h3>
-                  <p class="muted small">${escapeHtml(clip.publication)}</p>
-                  <div class="meta"><span>${escapeHtml(formatDate(clip.date))}</span></div>
-                </article>
-              `)}
-            </section>
-          `)
-          .join("")}
-      </div>
-    `,
-  });
-}
+// Portfolio pages removed — prerender no longer includes portfolio index
 
 async function writePage(routeSegments, html) {
   const targetDir = path.join(distDir, ...routeSegments);
@@ -511,14 +473,13 @@ async function writePage(routeSegments, html) {
 async function main() {
   const apiBaseUrl = resolveApiBaseUrl();
 
-  const [featuredArticles, stats, articlesPayload, categories, species, portfolio] =
+  const [featuredArticles, stats, articlesPayload, categories, species] =
     await Promise.all([
       fetchJson(apiBaseUrl, "/api/articles/featured"),
       fetchJson(apiBaseUrl, "/api/articles/stats"),
       fetchJson(apiBaseUrl, "/api/articles"),
       fetchJson(apiBaseUrl, "/api/categories"),
       fetchJson(apiBaseUrl, "/api/species"),
-      fetchJson(apiBaseUrl, "/api/portfolio"),
     ]);
 
   const articles = articlesPayload.articles;
@@ -532,7 +493,6 @@ async function main() {
     stats,
     articles,
     species,
-    portfolio,
   });
 
   const updatedRootIndexHtml = rootIndexHtml.includes('<div id="root"></div>')
@@ -543,7 +503,6 @@ async function main() {
 
   await writePage([], renderHomePage({ featuredArticles, stats }));
   await writePage(["articles"], renderArticlesIndex({ articles, categories }));
-  await writePage(["portfolio"], renderPortfolioIndex({ clips: portfolio }));
   await writePage(["species"], renderSpeciesIndex({ species }));
 
   await Promise.all(
@@ -561,7 +520,7 @@ async function main() {
   );
 
   console.log(
-    `Prerendered ${articles.length} articles, ${species.length} species, and ${portfolio.length} portfolio items using ${apiBaseUrl}`,
+    `Prerendered ${articles.length} articles and ${species.length} species using ${apiBaseUrl}`,
   );
 }
 

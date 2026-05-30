@@ -2,6 +2,8 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { articlesTable, articleTagsTable, tagsTable } from "@workspace/db";
 import { eq, ilike, sql, and, inArray } from "drizzle-orm";
+import { requireAdminAuth } from "../lib/auth";
+import { createRateLimiter } from "../lib/rate-limit";
 import {
   ListArticlesQueryParams,
   CreateArticleBody,
@@ -12,6 +14,11 @@ import {
 } from "@workspace/api-zod";
 
 const router = Router();
+const adminWriteRateLimit = createRateLimiter({
+  windowMs: 60_000,
+  limit: 20,
+  keyPrefix: "admin-write",
+});
 
 async function attachTags(articles: (typeof articlesTable.$inferSelect)[]) {
   if (articles.length === 0) return articles.map((a) => ({ ...a, tags: [] }));
@@ -68,7 +75,7 @@ router.get("/articles", async (req, res) => {
   res.json({ articles, total: Number(countResult[0]?.count ?? 0) });
 });
 
-router.post("/articles", async (req, res) => {
+router.post("/articles", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const parsed = CreateArticleBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error }); return; }
   const { tagIds, ...data } = parsed.data;
@@ -117,7 +124,7 @@ router.get("/articles/:slug", async (req, res) => {
   res.json(withTags);
 });
 
-router.put("/articles/:slug", async (req, res) => {
+router.put("/articles/:slug", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const paramsParsed = UpdateArticleParams.safeParse(req.params);
   const bodyParsed = UpdateArticleBody.safeParse(req.body);
   if (!paramsParsed.success || !bodyParsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
@@ -137,7 +144,7 @@ router.put("/articles/:slug", async (req, res) => {
   res.json(withTags);
 });
 
-router.delete("/articles/:slug", async (req, res) => {
+router.delete("/articles/:slug", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const parsed = DeleteArticleParams.safeParse(req.params);
   if (!parsed.success) { res.status(400).json({ error: parsed.error }); return; }
   await db.delete(articlesTable).where(eq(articlesTable.slug, parsed.data.slug));

@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { applySeoMeta, SEO_SITE_NAME } from "@/lib/seo";
+import { useEffect } from "react";
 
 export default function ArticleReader() {
   const params = useParams<{ slug: string }>();
@@ -27,6 +29,18 @@ export default function ArticleReader() {
     });
   };
 
+  useEffect(() => {
+    if (!article) return;
+
+    applySeoMeta({
+      title: article.seoTitle || `${article.title} | ${SEO_SITE_NAME}`,
+      description: article.seoDescription || article.excerpt,
+      canonicalPath: `/articles/${slug}`,
+      image: article.imageUrl || undefined,
+      type: "article",
+    });
+  }, [article, slug]);
+
   if (isLoading) {
     return (
       <div className="w-full min-h-screen bg-background pt-12 pb-24">
@@ -39,7 +53,7 @@ export default function ArticleReader() {
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-4 w-32" />
           </div>
-          <Skeleton className="aspect-[21/9] w-full mb-12 rounded-none" />
+          <Skeleton className="aspect-21/9 w-full mb-12 rounded-none" />
           <div className="space-y-4">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-full" />
@@ -111,7 +125,7 @@ export default function ArticleReader() {
       {/* Featured Image */}
       {article.imageUrl && (
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          <div className="aspect-[21/9] w-full overflow-hidden bg-muted relative">
+          <div className="aspect-21/9 w-full overflow-hidden bg-muted relative">
             <img 
               src={article.imageUrl} 
               alt={article.title} 
@@ -126,7 +140,7 @@ export default function ArticleReader() {
         {/* Share Sidebar (Desktop) */}
         <aside className="hidden lg:flex flex-col gap-4 sticky top-32 h-fit w-12 shrink-0">
           <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 rotate-180" style={{ writingMode: 'vertical-rl' }}>Share</div>
-          <div className="w-[1px] h-12 bg-border mx-auto mb-2"></div>
+          <div className="w-px h-12 bg-border mx-auto mb-2"></div>
           <button onClick={copyLink} className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Copy Link">
             <LinkIcon className="h-5 w-5" />
           </button>

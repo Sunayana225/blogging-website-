@@ -41,6 +41,12 @@ export function setBaseUrl(url: string | null): void {
  * token cookies are automatically associated with API calls by the browser.
  */
 export function setAuthTokenGetter(getter: AuthTokenGetter | null): void {
+  if (typeof window !== "undefined" && typeof document !== "undefined") {
+    throw new Error(
+      "setAuthTokenGetter is disabled in browser bundles. Use httpOnly cookies or a server-side proxy instead.",
+    );
+  }
+
   _authTokenGetter = getter;
 }
 

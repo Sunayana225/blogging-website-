@@ -87,9 +87,6 @@ export default function About() {
                 I am available for freelance commissions, editorial consulting, and speaking engagements.
               </p>
               <div className="flex flex-col gap-3">
-                <Link href="/services" className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground w-full">
-                  View Services
-                </Link>
                 <Link href="/contact" className="inline-flex items-center justify-center h-10 px-4 text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 w-full">
                   Get in Touch
                 </Link>

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Leaf, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -11,8 +11,6 @@ export function Navbar() {
     { name: "Home", href: "/" },
     { name: "Articles", href: "/articles" },
     { name: "Species", href: "/species" },
-    { name: "Portfolio", href: "/portfolio" },
-    { name: "Services", href: "/services" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
@@ -22,9 +20,8 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-              <Leaf className="h-6 w-6 text-primary" />
-              <span className="font-serif text-xl font-bold text-foreground">The Verdant Page</span>
+            <Link href="/" className="flex items-center transition-opacity hover:opacity-80">
+              <img src="/logo.png.png" alt="Wildleaf Journal" className="h-20 w-auto origin-left scale-110 object-contain md:h-24 md:scale-125" />
             </Link>
           </div>
 
@@ -82,3 +79,4 @@ export function Navbar() {
     </header>
   );
 }
+

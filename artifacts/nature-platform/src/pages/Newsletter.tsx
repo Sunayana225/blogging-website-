@@ -20,7 +20,7 @@ export default function Newsletter() {
       onSuccess: () => {
         toast({
           title: "Subscribed successfully",
-          description: "Welcome to The Verdant Page newsletter.",
+          description: "Welcome to the Wildleaf Journal newsletter.",
         });
         setEmail("");
         setName("");
@@ -55,7 +55,7 @@ export default function Newsletter() {
               <blockquote className="font-serif text-2xl leading-snug mb-6 italic">
                 "The clearest way into the Universe is through a forest wilderness."
               </blockquote>
-              <p className="text-primary-foreground/70 uppercase tracking-widest text-xs font-bold">— John Muir</p>
+              <p className="text-primary-foreground/70 uppercase tracking-widest text-xs font-bold">- John Muir</p>
             </div>
           </div>
         </div>
@@ -115,3 +115,4 @@ export default function Newsletter() {
     </div>
   );
 }
+

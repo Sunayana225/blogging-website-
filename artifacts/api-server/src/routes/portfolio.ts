@@ -7,8 +7,15 @@ import {
   CreatePortfolioClipBody,
   DeletePortfolioClipParams,
 } from "@workspace/api-zod";
+import { requireAdminAuth } from "../lib/auth";
+import { createRateLimiter } from "../lib/rate-limit";
 
 const router = Router();
+const adminWriteRateLimit = createRateLimiter({
+  windowMs: 60_000,
+  limit: 20,
+  keyPrefix: "admin-write",
+});
 
 router.get("/portfolio", async (req, res) => {
   const parsed = ListPortfolioClipsQueryParams.safeParse(req.query);
@@ -27,7 +34,7 @@ router.get("/portfolio", async (req, res) => {
   res.json(clips);
 });
 
-router.post("/portfolio", async (req, res) => {
+router.post("/portfolio", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const parsed = CreatePortfolioClipBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error });
@@ -37,7 +44,7 @@ router.post("/portfolio", async (req, res) => {
   res.status(201).json(clip);
 });
 
-router.delete("/portfolio/:id", async (req, res) => {
+router.delete("/portfolio/:id", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const parsed = DeletePortfolioClipParams.safeParse(req.params);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error });

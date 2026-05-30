@@ -9,8 +9,15 @@ import {
   UpdateSpeciesParams,
   DeleteSpeciesParams,
 } from "@workspace/api-zod";
+import { requireAdminAuth } from "../lib/auth";
+import { createRateLimiter } from "../lib/rate-limit";
 
 const router = Router();
+const adminWriteRateLimit = createRateLimiter({
+  windowMs: 60_000,
+  limit: 20,
+  keyPrefix: "admin-write",
+});
 
 router.get("/species", async (req, res) => {
   const parsed = ListSpeciesQueryParams.safeParse(req.query);
@@ -25,7 +32,7 @@ router.get("/species", async (req, res) => {
   res.json(species);
 });
 
-router.post("/species", async (req, res) => {
+router.post("/species", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const parsed = CreateSpeciesBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error }); return; }
   const [species] = await db.insert(speciesTable).values(parsed.data).returning();
@@ -40,7 +47,7 @@ router.get("/species/:slug", async (req, res) => {
   res.json(species);
 });
 
-router.put("/species/:slug", async (req, res) => {
+router.put("/species/:slug", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const paramsParsed = UpdateSpeciesParams.safeParse(req.params);
   const bodyParsed = CreateSpeciesBody.safeParse(req.body);
   if (!paramsParsed.success || !bodyParsed.success) { res.status(400).json({ error: "Invalid input" }); return; }
@@ -50,7 +57,7 @@ router.put("/species/:slug", async (req, res) => {
   res.json(species);
 });
 
-router.delete("/species/:slug", async (req, res) => {
+router.delete("/species/:slug", requireAdminAuth, adminWriteRateLimit, async (req, res) => {
   const parsed = DeleteSpeciesParams.safeParse(req.params);
   if (!parsed.success) { res.status(400).json({ error: parsed.error }); return; }
   await db.delete(speciesTable).where(eq(speciesTable.slug, parsed.data.slug));

@@ -7,6 +7,7 @@
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
+    "start:pm2": "node --enable-source-maps ./dist/scripts/preflight.mjs && node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -14,6 +15,7 @@
     "@workspace/db": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "catalog:",
     "express": "^5",
     "pino": "^9",
