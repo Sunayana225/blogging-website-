@@ -51,7 +51,13 @@ jobs:
         env:
           PORT: 3000
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         run: |
+          export DATABASE_URL="${DATABASE_URL:-$NEON_DATABASE_URL}"
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Missing DB secret. Set either DATABASE_URL or NEON_DATABASE_URL in GitHub repo secrets."
+            exit 1
+          fi
           pushd artifacts/api-server
           node --enable-source-maps ./dist/index.mjs &
           sleep 2
