@@ -31,11 +31,15 @@ jobs:
       - name: Apply DB schema (Drizzle)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
         shell: bash
         run: |
-          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" > lib/db/.env
+          export DATABASE_URL="${DATABASE_URL:-$NEON_DATABASE_URL}"
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Missing DB secret. Set either DATABASE_URL or NEON_DATABASE_URL in GitHub repo secrets."
+            exit 1
+          fi
           pnpm --filter @workspace/db run push
-          rm -f lib/db/.env
 
       - name: Build API
         run: |
